@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 from py4j.java_gateway import get_field
 
@@ -20,6 +22,7 @@ class GymAI(object):
         self.pre_framedata = None
 
         self.frameskip = frameskip
+        self.initialize_motion_list()
 
     def close(self):
         pass
@@ -97,9 +100,9 @@ class GymAI(object):
             self.reward = self.get_reward()
             self.pipe.send([self.obs, self.reward, False, None])
 
-        #print("waitting for step in {}".format(self.pipe))
+        # print("waitting for step in {}".format(self.pipe))
         request = self.pipe.recv()
-        #print("get step in {}".format(self.pipe))
+        # print("get step in {}".format(self.pipe))
         if len(request) == 2 and request[0] == "step":
             action = request[1]
             self.cc.commandCall(self.action_strs[action])
@@ -116,9 +119,9 @@ class GymAI(object):
                 p2_hp_now = self.frameData.getCharacter(False).getHp()
                 p1_hp_now = self.frameData.getCharacter(True).getHp()
                 if self.player:
-                    reward = (p2_hp_pre-p2_hp_now) - (p1_hp_pre-p1_hp_now)
+                    reward = (p2_hp_pre - p2_hp_now) - (p1_hp_pre - p1_hp_now)
                 else:
-                    reward = (p1_hp_pre-p1_hp_now) - (p2_hp_pre-p2_hp_now)
+                    reward = (p1_hp_pre - p1_hp_now) - (p2_hp_pre - p2_hp_now)
         except:
             reward = 0
         return reward
@@ -204,27 +207,33 @@ class GymAI(object):
 
         if len(myProjectiles) == 2:
             myHitDamage = myProjectiles[0].getHitDamage() / 200.0
-            myHitAreaNowX = ((myProjectiles[0].getCurrentHitArea().getLeft() + myProjectiles[
-                0].getCurrentHitArea().getRight()) / 2) / 960.0
-            myHitAreaNowY = ((myProjectiles[0].getCurrentHitArea().getTop() + myProjectiles[
-                0].getCurrentHitArea().getBottom()) / 2) / 640.0
+            myHitAreaNowX = (
+                (myProjectiles[0].getCurrentHitArea().getLeft() + myProjectiles[0].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            myHitAreaNowY = (
+                (myProjectiles[0].getCurrentHitArea().getTop() + myProjectiles[0].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(myHitDamage)
             observation.append(myHitAreaNowX)
             observation.append(myHitAreaNowY)
             myHitDamage = myProjectiles[1].getHitDamage() / 200.0
-            myHitAreaNowX = ((myProjectiles[1].getCurrentHitArea().getLeft() + myProjectiles[
-                1].getCurrentHitArea().getRight()) / 2) / 960.0
-            myHitAreaNowY = ((myProjectiles[1].getCurrentHitArea().getTop() + myProjectiles[
-                1].getCurrentHitArea().getBottom()) / 2) / 640.0
+            myHitAreaNowX = (
+                (myProjectiles[1].getCurrentHitArea().getLeft() + myProjectiles[1].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            myHitAreaNowY = (
+                (myProjectiles[1].getCurrentHitArea().getTop() + myProjectiles[1].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(myHitDamage)
             observation.append(myHitAreaNowX)
             observation.append(myHitAreaNowY)
         elif len(myProjectiles) == 1:
             myHitDamage = myProjectiles[0].getHitDamage() / 200.0
-            myHitAreaNowX = ((myProjectiles[0].getCurrentHitArea().getLeft() + myProjectiles[
-                0].getCurrentHitArea().getRight()) / 2) / 960.0
-            myHitAreaNowY = ((myProjectiles[0].getCurrentHitArea().getTop() + myProjectiles[
-                0].getCurrentHitArea().getBottom()) / 2) / 640.0
+            myHitAreaNowX = (
+                (myProjectiles[0].getCurrentHitArea().getLeft() + myProjectiles[0].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            myHitAreaNowY = (
+                (myProjectiles[0].getCurrentHitArea().getTop() + myProjectiles[0].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(myHitDamage)
             observation.append(myHitAreaNowX)
             observation.append(myHitAreaNowY)
@@ -236,27 +245,33 @@ class GymAI(object):
 
         if len(oppProjectiles) == 2:
             oppHitDamage = oppProjectiles[0].getHitDamage() / 200.0
-            oppHitAreaNowX = ((oppProjectiles[0].getCurrentHitArea().getLeft() + oppProjectiles[
-                0].getCurrentHitArea().getRight()) / 2) / 960.0
-            oppHitAreaNowY = ((oppProjectiles[0].getCurrentHitArea().getTop() + oppProjectiles[
-                0].getCurrentHitArea().getBottom()) / 2) / 640.0
+            oppHitAreaNowX = (
+                (oppProjectiles[0].getCurrentHitArea().getLeft() + oppProjectiles[0].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            oppHitAreaNowY = (
+                (oppProjectiles[0].getCurrentHitArea().getTop() + oppProjectiles[0].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(oppHitDamage)
             observation.append(oppHitAreaNowX)
             observation.append(oppHitAreaNowY)
             oppHitDamage = oppProjectiles[1].getHitDamage() / 200.0
-            oppHitAreaNowX = ((oppProjectiles[1].getCurrentHitArea().getLeft() + oppProjectiles[
-                1].getCurrentHitArea().getRight()) / 2) / 960.0
-            oppHitAreaNowY = ((oppProjectiles[1].getCurrentHitArea().getTop() + oppProjectiles[
-                1].getCurrentHitArea().getBottom()) / 2) / 640.0
+            oppHitAreaNowX = (
+                (oppProjectiles[1].getCurrentHitArea().getLeft() + oppProjectiles[1].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            oppHitAreaNowY = (
+                (oppProjectiles[1].getCurrentHitArea().getTop() + oppProjectiles[1].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(oppHitDamage)
             observation.append(oppHitAreaNowX)
             observation.append(oppHitAreaNowY)
         elif len(oppProjectiles) == 1:
             oppHitDamage = oppProjectiles[0].getHitDamage() / 200.0
-            oppHitAreaNowX = ((oppProjectiles[0].getCurrentHitArea().getLeft() + oppProjectiles[
-                0].getCurrentHitArea().getRight()) / 2) / 960.0
-            oppHitAreaNowY = ((oppProjectiles[0].getCurrentHitArea().getTop() + oppProjectiles[
-                0].getCurrentHitArea().getBottom()) / 2) / 640.0
+            oppHitAreaNowX = (
+                (oppProjectiles[0].getCurrentHitArea().getLeft() + oppProjectiles[0].getCurrentHitArea().getRight()) / 2
+            ) / 960.0
+            oppHitAreaNowY = (
+                (oppProjectiles[0].getCurrentHitArea().getTop() + oppProjectiles[0].getCurrentHitArea().getBottom()) / 2
+            ) / 640.0
             observation.append(oppHitDamage)
             observation.append(oppHitAreaNowX)
             observation.append(oppHitAreaNowY)
@@ -268,7 +283,57 @@ class GymAI(object):
 
         observation = np.array(observation, dtype=np.float32)
         observation = np.clip(observation, 0, 1)
-        return observation
+
+        dict_observation = dict()
+        dict_observation["observation"] = observation
+
+        valid_actions = []
+        for action_num in range(56):
+            if self.able_action(my, action_num, myState):
+                valid_actions.append(action_num)
+        dict_observation["valid_actions"] = valid_actions
+        return dict_observation
+
+    def able_action(self, character, next_action, now_action):
+        """
+        Judge if valid action
+        Args:
+            character:current character
+            next_action:next action
+            now_action:now action
+        Return:
+            if valid action return True,otherwise return False
+        """
+        ATTACK_START_ADD_ENERGY_INDEX = 19
+        CANCEL_ABLE_FRAME_INDEX = 28
+        CANCEL_ABLE_MOTION_LEVEL_INDEX = 29
+        MOTION_LEVEL_INDEX = 30
+        if character.getEnergy() < -int(self.motion_list[next_action][ATTACK_START_ADD_ENERGY_INDEX]):
+            return False
+        elif character.isControl():
+            return True
+        else:
+            checkFrame = (
+                int(self.motion_list[now_action][CANCEL_ABLE_FRAME_INDEX])
+                <= int(self.motion_list[now_action][1]) - character.getRemainingFrame()
+            )
+            checkAction = int(self.motion_list[now_action][CANCEL_ABLE_MOTION_LEVEL_INDEX]) >= int(
+                self.motion_list[next_action][MOTION_LEVEL_INDEX]
+            )
+            return character.isHitConfirm() and checkFrame and checkAction
+
+    def initialize_motion_list(self):
+        """
+        Initialize motion list(currently only supported ZEN character)
+        """
+        motion_list_path = os.path.join(os.path.dirname(__file__), "Motion.csv")
+        self.motion_list = []
+        with open(motion_list_path, "r") as file:
+            lines = file.readlines()
+            for i in range(1, len(lines)):
+                line = lines[i]
+                value_strs = line.split(",")
+                self.motion_list.append(value_strs)
 
     # This part is mandatory
     class Java:
