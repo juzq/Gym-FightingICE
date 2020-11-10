@@ -281,8 +281,15 @@ class GymAI(object):
             for t in range(6):
                 observation.append(0.0)
 
+        # stat
+        observation.append(my.getState().ordinal())
+        observation.append(opp.getState().ordinal())
+        # is_control
+        observation.append(1 if my.isControl() else 0)
+        observation.append(1 if opp.isControl() else 0)
+
         observation = np.array(observation, dtype=np.float32)
-        observation = np.clip(observation, 0, 1)
+        # observation = np.clip(observation, 0, 1)
 
         dict_observation = dict()
         dict_observation["observation"] = observation
