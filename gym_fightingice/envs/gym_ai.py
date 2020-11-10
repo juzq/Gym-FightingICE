@@ -289,8 +289,9 @@ class GymAI(object):
 
         valid_actions = []
         for action_num in range(56):
-            if self.able_action(my, action_num, myState):
+            if my.ableAction(action_num):
                 valid_actions.append(action_num)
+        print(f"valid_actions: {valid_actions}")
         dict_observation["valid_actions"] = valid_actions
         return dict_observation
 
